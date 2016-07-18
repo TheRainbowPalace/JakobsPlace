@@ -2,17 +2,17 @@
 A small terminal game (only tested under linux).
 
 ####Installation
-- download and unzip or clone the repository in a folder
-- open the folder in a terminal and type:
+- Download and unzip or clone the repository in a folder
+- Open the folder in a terminal and type:
 - ./jakobs-place
-- or if that does not work use the following line :
+- Or if that does not work use the following line :
 - python3 jakobs-place
 
 
 ####Game Controls
-- to quit the game use q
-- to move the character use W,A,S,D
-- sorry that there is no game menu
+- To quit the game use q
+- To move the character use W,A,S,D
+- Sorry that there is no game menu
 
 
 ####Note
