@@ -9,8 +9,12 @@ A small terminal game (only tested under linux).
 - python3 jakobs-place
 
 
-####Notes
+####Game Controls
 - to quit the game use q
 - to move the character use W,A,S,D
 - sorry that there is no game menu
 
+
+####Note
+This very tiny project is published under the GNU LGPL v3 Licence so feel free to 
+download and edit the code if you want.
