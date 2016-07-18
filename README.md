@@ -1,5 +1,5 @@
 # JakobsPlace
-A small terminal game (only tested under linux).
+A small terminal game.
 
 ####Installation
 - Download and unzip or clone the repository in a folder
@@ -16,6 +16,6 @@ A small terminal game (only tested under linux).
 - Sorry that there is no game menu
 
 
-####Note
-This very tiny project is published under the GNU LGPL v3 Licence so feel free to 
-download and edit the code if you want.
+####Notes
+- This very tiny project is published under the GNU LGPL v3 Licence so feel free to download and edit the code if you want
+- This game is only tested under Linux so it might run on Windows and Mac to but also it might not
