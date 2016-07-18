@@ -1,0 +1,161 @@
+#!/usr/bin/env python3
+
+import time
+import curses
+import gameObject
+import random
+import threading
+
+
+#chapter one script
+CHAPTER_ONE_SCRIPT = "Chapter One:\n\n"
+CHAPTER_ONE_SCRIPT += "You woke up, the clock say's it's 13' already and you ment to be at Jakob's place at 9, fuck!\n"
+CHAPTER_ONE_SCRIPT += "We really gotta hurry!\n"
+CHAPTER_ONE_SCRIPT += "You walk outside the door and BAM, Zombies, everywhere.\n"
+CHAPTER_ONE_SCRIPT += "Good to know that they are super slow.\n"
+
+LOST_SCRIPT = "They got you! Dammit!\nYou should better call Jakob to tell him that you won't make it in time..."
+
+stdscr = curses.initscr()
+if (curses.has_colors()):
+    curses.start_color()
+    curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLACK)
+    curses.init_pair(2, curses.COLOR_RED, curses.COLOR_BLACK)
+#only use even numbers for the y bound because of the render and flip methods
+game = gameObject.Game(boundRight = 40, boundTop = 16)
+player = gameObject.Player(game)
+
+zombies = []
+amountZombies = int(game.boundRight * game.boundTop / 65)
+for i in range(amountZombies):
+    zombie = gameObject.Zombie(game)
+    zombie.x = random.randint(game.boundLeft, game.boundRight)
+    zombie.y = game.boundTop - 1 + random.randint(0, game.boundTop)
+    zombies.append(zombie)
+
+def getInput(stdscr):
+    curses.flushinp() #flush the input, so untracked input is gone
+    try:
+        game.usrInput = stdscr.getkey()
+    except:
+        game.resetInput()
+    #handle the user input
+    if (game.usrInput == "q"):
+        stop()
+    elif (game.usrInput == "a"):
+        player.left = True
+    elif (game.usrInput == "d"):
+        player.right = True  
+    elif (game.usrInput == "w"):
+        player.up = True
+    elif (game.usrInput == "s"):
+        player.down = True  
+
+def flipY(y, axis):
+    if (y > axis):
+        distance = y - axis
+        y -= 2 * distance
+    else:
+        distance = axis - y
+        y += 2 * distance
+    return y
+
+def checkBounds(gObject):
+    result = 0
+    if (gObject.y >= gObject.game.boundBottom and gObject.y <= gObject.game.boundTop):
+        result += 1
+    if (gObject.x >= gObject.game.boundLeft and gObject.x <= gObject.game.boundRight):
+        result += 1
+    return result
+
+#render all game objects to the screen
+def render(stdscr):
+    stdscr.clear()
+    #render background  
+    for i in range(game.boundTop + 1):
+        for j in range(game.boundRight + 1):
+            if (curses.has_colors()):
+                stdscr.addstr(i, j, " ", curses.color_pair(0))
+            else:
+                stdscr.addstr(i, j, " ")
+    
+    yAxis = int(game.boundTop / 2)
+    #render player    
+    if (curses.has_colors()):
+        stdscr.addstr(flipY(player.y, yAxis), player.x, "X", curses.color_pair(1))
+    else:
+        stdscr.addstr(flipY(player.y, yAxis), player.x, "X")
+    #render zombies
+    for i in zombies:
+        if (checkBounds(i) == 2):
+            if (curses.has_colors()):
+                stdscr.addstr(flipY(i.y, yAxis), i.x, "O", curses.color_pair(2))
+            else:
+                stdscr.addstr(flipY(i.y, yAxis), i.x, "O")
+
+    stdscr.addstr(game.boundTop + 3, 0, "In: " + game.usrInput)
+    stdscr.refresh() #update the screen 
+
+#stop the game
+def stop():
+    game.running = False
+
+#run the game end script
+def endScript(stdscr):
+    curses.nocbreak() #activate input dealay again
+    stdscr.clear()
+    if (game.lost):
+        script = LOST_SCRIPT
+        script += "\n\nYou survived " + str(player.score) + " zombies!"
+    elif(not game.won and not game.lost):
+        script = "Run you fools!"
+    stdscr.addstr(1, 0, script)
+    stdscr.getch()
+
+#run the game start script
+def startScript(stdscr):
+    script = CHAPTER_ONE_SCRIPT
+    stdscr.addstr(1, 0, script)
+    stdscr.refresh()
+    stdscr.getch()
+    curses.halfdelay(1) #the delay the system wait's for input
+
+#update the artificial intelligence
+def ai():
+    while(game.running):
+        time.sleep(100/1000)
+        for i in zombies:
+            addScore = i.update()
+            if (addScore):
+                player.score += 1
+
+#update the rest of the logic
+def logic():
+    player.update()
+
+def collision():
+    #while (game.running):
+    if (gameObject.collisionCheck(player, zombies)):
+        player.alive = False
+        game.lost = True
+        stop()
+        time.sleep(0.1)
+
+def main(stdscr):
+    curses.curs_set(0) #deactivate the cursor
+    startScript(stdscr)
+
+    #start an ai thread to get relative constant ai movements
+    aiThread = threading.Thread(target = ai)
+    aiThread.start()
+
+    while(game.running):
+        time.sleep(1/1000)
+        getInput(stdscr)
+        logic()
+        render(stdscr)
+        collision()
+
+    endScript(stdscr)
+
+curses.wrapper(main)
