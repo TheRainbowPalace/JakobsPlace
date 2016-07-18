@@ -3,6 +3,7 @@ A small terminal game (only tested under linux).
 
 ####Installation
 - Download and unzip or clone the repository in a folder
+- Make sure you have Python 3 pre-installed or install it
 - Open the folder in a terminal and type:
 - ./jakobs-place
 - Or if that does not work use the following line :
